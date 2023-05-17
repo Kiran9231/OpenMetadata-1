@@ -1,0 +1,28 @@
+install:
+  commands:
+    - apt-get update
+    - apt-get install -y python3-venv
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - sudo make install_antlr_cli
+    - make install_dev generate
+    - pip install awscli
+
+build:
+  commands:
+    - aws configure set aws_access_key_id YOUR_ACCESS_KEY
+    - aws configure set aws_secret_access_key YOUR_SECRET_ACCESS_KEY
+    - aws configure set region YOUR_AWS_REGION
+
+build:
+  commands:
+    - docker build -f ingestion/Dockerfile.ci -t openmetadata-ingestion:0.0.1 .
+    - aws ecr get-login-password --region YOUR_AWS_REGION | docker login --username AWS --password-stdin YOUR_AWS_ACCOUNT_ID.dkr.ecr.YOUR_AWS_REGION.amazonaws.com
+    - docker tag openmetadata-ingestion:0.0.1 YOUR_AWS_ACCOUNT_ID.dkr.ecr.YOUR_AWS_REGION.amazonaws.com/openmetadata-ingestion:0.0.1
+    - docker push YOUR_AWS_ACCOUNT_ID.dkr.ecr.YOUR_AWS_REGION.amazonaws.com/openmetadata-ingestion:0.0.1
+
+
+artifacts:
+  files:
+    - openmetadata-ingestion.tar
+    - YOUR_AWS_ACCOUNT_ID.dkr.ecr.YOUR_AWS_REGION.amazonaws.com/openmetadata-ingestion:0.0.1
